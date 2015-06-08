@@ -1,47 +1,101 @@
 <html>
 <head>
 <meta charset="utf-8" />
-<script type="text/javascript">
-var _W = undefined;
-//错误处理
-window.onerror = function(errorMessage, scriptURI, lineNumber, columnNumber, error) {
-
-	    reportError({
-	      message: errorMessage,
-	      script: scriptURI,
-	      line: lineNumber,
-	      column: columnNumber
-	    });
-
-	return true;
-}
-
-function reportError(error) {
-	// console.log(error);
-	var errorStr = "错误信息：" + error.message + "，文件：" + error.script + " 第" + error.line +"行，" + error.column + "列";
-	// return errorStr;
-	console.log(errorStr);
-	// _W.send(errorStr); 
-	// send();
-}
-
-</script>
 <script type="text/javascript">  
 var host = '127.0.0.1';  
 var port = 8888;  
 var url = 'ws://'+host+':'+port+'/';  
-var w = new WebSocket(url);  //构建于服务器之间的连接通信
-_W = w;
-<!--var audioElement = document.createElement('audio');  -->
+var ws = new WebSocket(url,'echo-protocol');  //建于服务器之间的连接通信
+var error_log = new Array();
 
-<!--audioElement.setAttribute('src', 'qqmsg.mp3');-->  
-w.onopen = function()//通过onopen事件句柄来监听socket的打开事件
+//错误处理
+window.onerror = function(errorMessage, scriptURI, lineNumber, columnNumber, error) {
+
+		if (ws.readyState === ws.OPEN) {
+			//执行时的错误
+		    reportError({
+		      message: errorMessage,
+		      script: scriptURI,
+		      line: lineNumber,
+		      column: columnNumber
+		    });
+		} else {
+			//在页面加载时的错误
+			recordError({
+		      message: errorMessage,
+		      script: scriptURI,
+		      line: lineNumber,
+		      column: columnNumber
+		    });
+		}
+	return true;
+}
+
+function createErrStr(error) {
+	return "错误信息：" + error.message + "，文件：" + error.script + " 第" + error.line +"行，" + error.column + "列";
+}
+
+// console.log('global '+window.error_log)
+
+function reportError(error) {
+	console.log(ws.readyState)
+
+	var errorStr = createErrStr(error);
+
+	console.log(errorStr);
+
+	ws.send(errorStr); 
+
+}
+
+function recordError(error) {
+	if(window.error_log == undefined) {
+		window.error_log = [];
+	}
+	var errorStr = createErrStr(error);
+	// console.log(errorStr);
+	window.error_log.push(errorStr);
+	// console.log(error_log)
+}
+
+function sleep(milliSeconds) {
+	var startTime = new Date().getTime();
+	while (new Date().getTime() < startTime + milliSeconds);
+}
+
+function sendRecord() {
+	// alert('df')
+	if(window.error_log.length != 0) alert('2')
+	for (var i = 0; i < window.error_log.length - 1; i++) {
+
+		var errorStr = createErrStr(error);
+		ws.send(errorStr); 
+		console(errorStr)
+	};
+}
+
+sendRecord();
+
+ function $(id)
+ {  
+    return document.getElementById(id);  
+ }
+ws.onopen = function()//通过onopen事件句柄来监听socket的打开事件
 {  
-	$('chat-box').innerHTML = '已连接到服务器......<br/>';  
+	// $('chat-box').innerHTML = '已连接到服务器......<br/>';
+ 	// function sendNumber() {
+  //       if (w.readyState === w.OPEN) {
+  //           var number = Math.round(Math.random() * 0xFFFFFF);
+  //           w.send(number.toString());
+  //           setTimeout(sendNumber, 3000);
+  //       }
+  //   }
+    // sendNumber();
 }  
-w.onmessage = function(e)//用onmessage事件句柄接受服务器传过来的数据
+ws.onmessage = function(e)//用onmessage事件句柄接受服务器传过来的数据
 {  
-   var msg = e.data;  
+   var msg = e.data; 
+   console.log("from server: "+ e.data)
    var chatBox = $('chat-box');  
   // audioElement.play();      
    chatBox.innerHTML = chatBox.innerHTML+msg+'<br/>';  
@@ -49,17 +103,18 @@ w.onmessage = function(e)//用onmessage事件句柄接受服务器传过来的�
     
  function send()//使用send方法向服务器发送数据
  {  
-     var talk = $('talk');  
-     var nike = $('nike');   
-     w.send('<strong style="color:red">'+nike.value+':</strong>'+talk.value);  
+ddd
+    // var talk = $('talk');  
+    // var nike = $('nike');   
+    // w.send('<strong style="color:red">'+nike.value+':</strong>'+talk.value);  
  }  
- function $(id)
- {  
-     return document.getElementById(id);  
- }
 
- vonsoel.log();
- </script>
+dfdf.push();
+</script>
+<script type="text/javascript">
+sdasf.log();
+
+</script>
 </head>
 <body>
 <div id="chat-box" style="border:1px solid #cccccc; width:400px; height:400px; overflow:scroll;"></div>

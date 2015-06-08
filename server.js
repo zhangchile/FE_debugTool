@@ -20,13 +20,14 @@ var wsServer = new WebSocketServer({httpServer: server});
 wsServer.on('request', function(request) {
     console.log(getNow() + ' ' + request.origin + ' 请求连接.');
 
-    var connection = request.accept(null, request.origin); 
+    var connection = request.accept('echo-protocol', request.origin); 
     var index = clients.push(connection) - 1;
     console.log(getNow() + ' 已建立连接...');
 
      connection.on('message', function(message) {
         if(message.type === 'utf8') {
-             console.log(getNow() + ': ' + message.utf8Data);
+            console.log(getNow() + ': ' + message.utf8Data);
+            connection.sendUTF("receive error");
         }
      });
 
