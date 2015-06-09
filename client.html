@@ -1,7 +1,7 @@
 <html>
 <head>
 <meta charset="utf-8" />
-<script type="text/javascript">  
+<script type="text/javascript">
 var host = '127.0.0.1';  
 var port = 8888;  
 var url = 'ws://'+host+':'+port+'/';  
@@ -28,11 +28,10 @@ window.onerror = function(errorMessage, scriptURI, lineNumber, columnNumber, err
 		    });
 			var interws = new WebSocket(url, 'echo-protocol');
 			interws.onopen = function() {
-				// console.log('interws connect')
 		    	interws.send(str);
 			}
 			interws.onmessage = function(msg) {
-				console.log(msg.data)
+				// console.log(msg.data)
 		    	interws.close();
 			}
 			interws.onclose = function() {
@@ -75,7 +74,7 @@ function sleep(milliSeconds) {
 
 function sendRecord() {
 	// alert('df')
-	if(window.error_log.length != 0) alert('2')
+	
 	for (var i = 0; i < window.error_log.length - 1; i++) {
 
 		var errorStr = createErrStr(error);
@@ -84,7 +83,6 @@ function sendRecord() {
 	};
 }
 
-sendRecord();
 
  function $(id)
  {  
@@ -119,7 +117,7 @@ ddd
     // w.send('<strong style="color:red">'+nike.value+':</strong>'+talk.value);  
  }  
 
-dfdf.push();
+dfdf.pusd();
 </script>
 <script type="text/javascript">
 sdasf.log();
@@ -134,5 +132,8 @@ sdasf.log();
 内容:
 <input type="text" id="talk"/>
 <input type="button" id="send" onClick="send();" value="发送"/>
+<script type="text/javascript">
+
+</script>
 </body>
 </html>

@@ -1,3 +1,4 @@
+//当前连接的客户端
 var clients = Array();
 
 var webSocketsServerPort = 8888;
@@ -18,7 +19,7 @@ server.listen(webSocketsServerPort, function() {
 var wsServer = new WebSocketServer({httpServer: server});
 
 wsServer.on('request', function(request) {
-    console.log(getNow() + ' ' + request.origin + ' 请求连接.');
+    console.log(getNow() + ' -- ' + request.origin + ' 请求连接.');
 
     var connection = request.accept('echo-protocol', request.origin); 
     var index = clients.push(connection) - 1;
