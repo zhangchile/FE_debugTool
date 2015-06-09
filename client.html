@@ -6,7 +6,6 @@ var host = '127.0.0.1';
 var port = 8888;  
 var url = 'ws://'+host+':'+port+'/';  
 var ws = new WebSocket(url,'echo-protocol');  //建于服务器之间的连接通信
-var error_log = new Array();
 
 //错误处理
 window.onerror = function(errorMessage, scriptURI, lineNumber, columnNumber, error) {
@@ -21,12 +20,24 @@ window.onerror = function(errorMessage, scriptURI, lineNumber, columnNumber, err
 		    });
 		} else {
 			//在页面加载时的错误
-			recordError({
+			var str = createErrStr({
 		      message: errorMessage,
 		      script: scriptURI,
 		      line: lineNumber,
 		      column: columnNumber
 		    });
+			var interws = new WebSocket(url, 'echo-protocol');
+			interws.onopen = function() {
+				// console.log('interws connect')
+		    	interws.send(str);
+			}
+			interws.onmessage = function(msg) {
+				console.log(msg.data)
+		    	interws.close();
+			}
+			interws.onclose = function() {
+
+			}
 		}
 	return true;
 }
@@ -35,7 +46,6 @@ function createErrStr(error) {
 	return "错误信息：" + error.message + "，文件：" + error.script + " 第" + error.line +"行，" + error.column + "列";
 }
 
-// console.log('global '+window.error_log)
 
 function reportError(error) {
 	console.log(ws.readyState)
@@ -90,7 +100,7 @@ ws.onopen = function()//通过onopen事件句柄来监听socket的打开事件
   //           setTimeout(sendNumber, 3000);
   //       }
   //   }
-    // sendNumber();
+    sendNumber();
 }  
 ws.onmessage = function(e)//用onmessage事件句柄接受服务器传过来的数据
 {  
@@ -124,6 +134,5 @@ sdasf.log();
 内容:
 <input type="text" id="talk"/>
 <input type="button" id="send" onClick="send();" value="发送"/>
-
 </body>
 </html>
