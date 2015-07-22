@@ -8,7 +8,7 @@ function sleep(ms) {
 }
 
 function start(response, postData) {
-	console.log("Request handler 'start' was called.");
+	// console.log("Request handler 'start' was called.");
 	var content = "empty";
 
 	var body = '<html>'+

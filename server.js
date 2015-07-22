@@ -5,10 +5,10 @@ var front_console = null;
 
 var webSocketsServerPort = 8888;
 var WebSocketServer = require('websocket').server;
-var WebSocketClient = require('websocket').client;
-var WebSocketFrame  = require('websocket').frame;
-var WebSocketRouter = require('websocket').router;
-var W3CWebSocket = require('websocket').w3cwebsocket;
+// var WebSocketClient = require('websocket').client;
+// var WebSocketFrame  = require('websocket').frame;
+// var WebSocketRouter = require('websocket').router;
+// var W3CWebSocket = require('websocket').w3cwebsocket;
 var http = require('http');
 var url = require('url');
 
@@ -21,7 +21,7 @@ function start(route, handle) {
 
         request.addListener('data', function(postDataChunk) {
             postData += postDataChunk;  
-            console.log("Received POST data chunk '" + postDataChunk + "'.")
+            // console.log("Received POST data chunk '" + postDataChunk + "'.")
         });
 
         request.addListener("end", function() {
@@ -38,15 +38,15 @@ server.listen(webSocketsServerPort, function() {
 var wsServer = new WebSocketServer({httpServer: server});
 
 wsServer.on('request', function(request) {
-    console.log(getNow() + ' -- ' + request.origin + ' 请求连接.');
+    // console.log(getNow() + ' -- ' + request.origin + ' 请求连接.');
 
     var connection = request.accept('echo-protocol', request.origin); 
     var index = clients.push(connection) - 1;
-    console.log(getNow() + ' 已建立连接...');
+    console.log(getNow() + " " + request.origin + ' 已建立连接...');
 
      connection.on('message', function(message) {
         if(message.type === 'utf8') {
-            console.log(getNow() + ': ' + message.utf8Data);
+            // console.log(getNow() + ': ' + message.utf8Data);
 
             //信息过滤与分派
             var msg = message.utf8Data;
@@ -57,7 +57,7 @@ wsServer.on('request', function(request) {
                 connection.sendUTF("控制台已连接。");
                 clients.pop();
                 index = index - 1;
-            } else if(msg.indexOf("command#") >= 0){
+            } else if (msg.substr(0, 8) == "command#") {
                 //来自控制台的命令
                 var command = msg.substr(msg.indexOf("#") + 1);
                 console.log(command);
@@ -66,9 +66,29 @@ wsServer.on('request', function(request) {
                 for (var i = clients.length - 1; i >= 0; i--) {
                     clients[i].sendUTF(msg);
                 };
+            } else if (msg.substr(0, 6) == "error#") {
+                var error = msg.substr(msg.indexOf("#") + 1);
+                if (front_console) {
+                    front_console.sendUTF("<span class='error'>" + error + "</span>");
+                }
+                //如果控制台没连接
+            } else if (msg.substr(0, 6) == "debug#") {
+                var debug = msg.substr(msg.indexOf("#") + 1);
+                if (front_console) {
+                    front_console.sendUTF(debug);
+                }
+            } else if (msg.substr(0, 7) == "client#"){
+                //客户端连接 发送客户端的信息
+                var client = msg.substr(msg.indexOf("#") + 1);
+                var appName = client.split(",")[0];
+                var appVersion = client.split(",")[1];
+                var platform = client.split(",")[2];
+                if (front_console) {
+                    front_console.sendUTF("客户端："+platform + " 已建立连接");
+                }
             } else {
                 //
-                connection.sendUTF(message.utf8Data);
+                front_console.sendUTF(message.utf8Data);
             }
 
         }
@@ -78,8 +98,10 @@ wsServer.on('request', function(request) {
             console.log(getNow() + " -- " + connection.remoteAddress + " 断开链接.");
             clients.pop();
             index = index - 1;
-            console.log()
             console.log(getNow() + " 当前连接数：" + clients.length);
+            if (front_console) {
+                front_console.sendUTF(getNow() + " -- " + connection.remoteAddress + " 断开链接。当前连接数："+ clients.length);
+            }
         });
     });
 

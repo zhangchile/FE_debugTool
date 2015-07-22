@@ -32,7 +32,7 @@ var FeDebugTool = {
 				    });
 					var interws = new WebSocket(that.url, 'echo-protocol');
 					interws.onopen = function() {
-				    	interws.send(str);
+				    	interws.send("error#" + str);
 					}
 					interws.onmessage = function(msg) {
 						// console.log(msg.data)
@@ -46,29 +46,31 @@ var FeDebugTool = {
 		}
 
 
-		this.ws.onopen = function()//通过onopen事件句柄来监听socket的打开事件
-		{  
-			// $('chat-box').innerHTML = '已连接到服务器......<br/>';
-		 	// function sendNumber() {
-		  //       if (w.readyState === w.OPEN) {
-		  //           var number = Math.round(Math.random() * 0xFFFFFF);
-		  //           w.send(number.toString());
-		  //           setTimeout(sendNumber, 3000);
-		  //       }
-		  //   }
-		    // sendNumber();
+		this.ws.onopen = function() {//通过onopen事件句柄来监听socket的打开事件
+		  	//发送客户端的信息
+		    var clientinfo = window.navigator.appName +","+ window.navigator.appVersion +","+ window.navigator.platform;
+		    // console.log(clientinfo)
+		    that.ws.send("client#" + clientinfo);
 		}  
-		this.ws.onmessage = function(e)//用onmessage事件句柄接受服务器传过来的数据
-		{  
+		this.ws.onmessage = function(e) {//用onmessage事件句柄接受服务器传过来的数据
+		 
 		   var msg = e.data; 
 		   console.log("from server: "+ e.data)
-		   var chatBox = $('chat-box');  
-		  // audioElement.play();      
-		   chatBox.innerHTML = chatBox.innerHTML+msg+'<br/>';  
+		  //  var chatBox = $('chat-box');  
+		  // // audioElement.play();      
+		  //  chatBox.innerHTML = chatBox.innerHTML+msg+'<br/>';
+		   if (msg.indexOf("command#") >= 0) {
+		   		var command = msg.substr(msg.indexOf("#") + 1);
+		   		//创建script标签
+		   		var script = document.createElement('script'); 
+		   		script.type = 'text/javascript';
+		   		script.innerHTML = command;
+		   		document.body.appendChild(script); 
+		   }
 		}  
 		    
-		function send()//使用send方法向服务器发送数据
-		{  
+		function send() { //使用send方法向服务器发送数据
+		
 		// var talk = $('talk');  
 		// var nike = $('nike');   
 		// w.send('<strong style="color:red">'+nike.value+':</strong>'+talk.value);  
@@ -88,7 +90,7 @@ var FeDebugTool = {
 
 			// console.log(errorStr);
 
-			this.ws.send(errorStr); 
+			this.ws.send("error#" + errorStr); 
 
 		},
 
@@ -109,12 +111,14 @@ var FeDebugTool = {
 
 		sendRecord: function () {
 			// alert('df')
-			
 			for (var i = 0; i < window.error_log.length - 1; i++) {
 
 				var errorStr = createErrStr(error);
-				ws.send(errorStr); 
-				console(errorStr)
+				this.ws.send("error#" + errorStr); 
+				console(errorStr);
 			};
+		},
+		debugDump: function(value) {
+			this.ws.send("debug#" + value.toString());
 		}	
 }
