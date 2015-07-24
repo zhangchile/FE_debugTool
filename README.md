@@ -17,4 +17,4 @@ var port = 'your server port';
 FeDebugTool.init(ip, port);
 </script>
 ```
-4. 使用`node index.js`启动服务器进行监听。
+最后，使用`node index.js`启动服务器进行监听。
