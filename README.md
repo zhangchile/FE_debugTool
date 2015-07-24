@@ -8,11 +8,12 @@
 1. PC需要node.js环境
 2. 本工具使用了WebSocket技术，移动端需要android4.4+，iOS7+
 3. 在要调试的移动端页面添加以下代码：
-  <script type="text/javascript" src="FeDebugTool.js"></script>
-  <script type="text/javascript">
-  //设置服务器ip
-  var ip = 'your server ip';
-  var port = 'your server port';
-  FeDebugTool.init(ip, port);
-  </script>
+``` javascript
+<script type="text/javascript" src="FeDebugTool.js"></script>
+<script type="text/javascript">
+//设置服务器ip
+var ip = 'your server ip';
+var port = 'your server port';
+FeDebugTool.init(ip, port);
+</script>
   
