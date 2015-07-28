@@ -18,6 +18,7 @@
 	
 	</style>
 <h1>console</h1>
+<h3>当前连接数：<span id="clientNum">0</span></h3>
 <div id="result" class="result">
 
 </div>
@@ -26,35 +27,61 @@
 </textarea>
 <input type="button" id="btn_exec" value="执行代码">
 <script type="text/javascript">
-window.onload = function() {
+
 	var host = '127.0.0.1';  
 	var port = 8888;  
-	var url = 'ws://'+host+':'+port+'/';
+	var url  = 'ws://'+host+':'+port+'/';
+	var ws   = null;
 
-	var ws = new WebSocket(url, 'echo-protocol');
+	var result = $("result");
 
-	ws.onopen = function() {  //通过onopen事件句柄来监听socket的打开事件
-		ws.send("console");
-	} 
-	ws.onmessage = function(result) {
-		$("result").innerHTML = $("result").innerHTML + result.data + '<br/>'; 
-		console.log(result.data)
+	function init() {
+		ws = new WebSocket(url, 'echo-protocol');
+
+		ws.onopen = function() {  //通过onopen事件句柄来监听socket的打开事件
+			ws.send("console");
+		} 
+		ws.onmessage = function(rs) {
+			var data = rs.data;
+			if (data.substr(0, 4) == "msg#") {
+				var data = data.substr(data.indexOf("#") + 1);
+				result.innerHTML =  result.innerHTML + data + '<br/>'; 
+			} else if (data.substr(0, 8) == "command#") {
+		   		var command = data.substr(data.indexOf("#") + 1);
+		   		//创建script标签
+		   		var script = document.createElement('script'); 
+		   		script.type = 'text/javascript';
+		   		script.innerHTML = command;
+		   		document.body.appendChild(script); 
+			}
+			console.log(data);
+		}
+
+		ws.onclose = function(evt) {
+			result.innerHTML = result.innerHTML + "连接已断开，3秒后重新连接..." + '<br/>';
+			setTimeout(function(){init();}, 3000);
+		}
+		ws.onerror = function() {
+			result.innerHTML = result.innerHTML + "连接失败，无法连接服务器" + '<br/>';
+		}	
 	}
 
-	ws.onclose = function(evt) {
-		$("result").innerHTML = $("result").innerHTML + "连接已断开" + '<br/>'; 
+	function $(id) {  
+		return document.getElementById(id);  
 	}
 
+	init();
 	$("btn_exec").addEventListener("click",function(event){
 		var command = $("command").value;
 		ws.send("command#" + command.trim());
 	});
 
 
-	function $(id) {  
-		return document.getElementById(id);  
+
+	function setClient(num) {
+		$("clientNum").innerHTML = num;
 	}
-}
+
 </script>
 
 </body>
