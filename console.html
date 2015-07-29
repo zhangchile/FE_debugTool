@@ -1,31 +1,90 @@
 <html>
-
 <head>
 	<meta charset="utf-8" />
 	<title>console</title>
+	<script type="text/javascript">
+	function $(id) {  
+		return document.getElementById(id);  
+	}
+	</script>
 </head>
 <body>
 	<style type="text/css">
+	* {
+		box-sizing: border-box;
+	}
+
+	body {
+		margin: 0;
+		padding: 0;
+/*		background-color: rgb(39,40,34);
+		color:white;*/
+		/*text-align: center;*/
+	}
+
 	.error {
 		color:red;
 	}
 	.result {
-/*		background-color: black;
-		min-height: 300px;
-		overflow: scroll;
-		color: white;*/
+		background-color: rgb(39,40,34);
+		color: white;
+		overflow-y: auto;
+		margin: 0 auto;
+		max-width: 1100px;
+		margin: 0 15% 20 15%;
+		height: 200px;
+		padding: 10px 15px;
 	}
+	.nav {
+		text-align: center;
+
+	}
+
+	.code {
+		margin: 0 15%;
+	}
+
+	#command_block {
+		word-wrap: break-word;
+	}
+
+	.expandingArea{
+    	position:relative;
+	}
+
+	textarea{
+	    top:0;
+	    left:0;
+	    height:100%;
+	    width: 100%;
+	    resize: none;
+	    position:absolute;
+	    padding: 10px 15px;
+	}
+	pre{
+	    display:block;
+	    visibility:hidden;
+	    min-height: 100px;
+	    width: 100%;
+	    padding: 10px 15px;
+	}
+
 	
 	</style>
-<h1>console</h1>
-<h3>当前连接数：<span id="clientNum">0</span></h3>
-<div id="result" class="result">
-
+<div class="nav">
+	<h1>console</h1>
+	<h3>当前连接数：<span id="clientNum">0</span></h3>
 </div>
-<textarea id="command" name="command" style="width:300px;height:100px;" >
+<div id="result" class="result"></div>
+<div class="code">
+	<div class="expandingArea ">
+	    <pre class="command" ><span id="command_block"></span><br><br><br></pre>
+	    <textarea autofocus class="command" id="command"  placeholder="输入代码"></textarea>
+	</div>
+	<input type="button" id="btn_exec" value="执行代码">
+</div>
 
-</textarea>
-<input type="button" id="btn_exec" value="执行代码">
+
 <script type="text/javascript">
 
 	var host = '127.0.0.1';  
@@ -46,6 +105,7 @@
 			if (data.substr(0, 4) == "msg#") {
 				var data = data.substr(data.indexOf("#") + 1);
 				result.innerHTML =  result.innerHTML + data + '<br/>'; 
+				result.scrollTop = result.scrollHeight;
 			} else if (data.substr(0, 8) == "command#") {
 		   		var command = data.substr(data.indexOf("#") + 1);
 		   		//创建script标签
@@ -58,16 +118,12 @@
 		}
 
 		ws.onclose = function(evt) {
-			result.innerHTML = result.innerHTML + "连接已断开，3秒后重新连接..." + '<br/>';
-			setTimeout(function(){init();}, 3000);
+			result.innerHTML = result.innerHTML + "连接已断开，正在尝试重新连接..." + '<br/>';
+			setTimeout(function(){init();}, 1000);
 		}
 		ws.onerror = function() {
 			result.innerHTML = result.innerHTML + "连接失败，无法连接服务器" + '<br/>';
 		}	
-	}
-
-	function $(id) {  
-		return document.getElementById(id);  
 	}
 
 	init();
@@ -75,8 +131,9 @@
 		var command = $("command").value;
 		ws.send("command#" + command.trim());
 	});
-
-
+	$("command").addEventListener('keyup', function() {
+		$("command_block").innerHTML = this.value;
+	});
 
 	function setClient(num) {
 		$("clientNum").innerHTML = num;

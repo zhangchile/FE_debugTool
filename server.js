@@ -13,22 +13,44 @@ var WebSocketServer = require('websocket').server;
 // var W3CWebSocket = require('websocket').w3cwebsocket;
 var http = require('http');
 var url = require('url');
+var fs = require("fs");
 
 function start(route, handle) {
 
     function onRequest(request, response) {
         var postData = "";
         var pathname = url.parse(request.url).pathname;
-        request.setEncoding('utf8');
+        var ext = pathname.match(/(\.[^.]+|)$/)[0];//取得后缀名
+        // console.log('Request for ' + pathname + ' received.');
+        // console.log(ext);
+        switch(ext){
+            case ".css":
+            case ".js":
+                fs.readFile("."+request.url, 'utf-8',function (err, data) {//读取内容
+                    if (err) throw err;
+                    response.writeHead(200, {
+                        "Content-Type": {
+                             ".css":"text/css",
+                             ".js":"application/javascript",
+                      }[ext]
+                    });
+                    response.write(data);
+                    response.end();
+                });
+                break;
+            default:
 
-        request.addListener('data', function(postDataChunk) {
-            postData += postDataChunk;  
-            // console.log("Received POST data chunk '" + postDataChunk + "'.")
-        });
+            request.setEncoding('utf8');
 
-        request.addListener("end", function() {
-            route(handle, pathname, response, postData);
-        });
+            request.addListener('data', function(postDataChunk) {
+                postData += postDataChunk;  
+                // console.log("Received POST data chunk '" + postDataChunk + "'.")
+            });
+
+            request.addListener("end", function() {
+                route(handle, pathname, response, postData);
+            });
+        }
     }
 
     var server = http.createServer(onRequest);
@@ -43,7 +65,7 @@ function start(route, handle) {
 
         var connection = request.accept('echo-protocol', request.origin); 
         var index = _clients.push(connection) - 1;
-        console.log(getNow() + " " + request.origin + ' 已建立连接...');
+        // console.log(getNow() + " " + request.origin + ' 已建立连接...');
 
         connection.on('message', function(message) {
             if(message.type === 'utf8') {
